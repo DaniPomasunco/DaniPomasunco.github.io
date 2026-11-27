@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NKT A/S pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+/* VOICE: a sell-side equity note, calm and exact; the finding first.
+   IDEA: a research note with a live model attached: the reader can push on the thesis.
+   PICTURE: the scenario panel, bear-probability slider driving the expected value.
+   COLOUR and TYPE: white, ink #10131a, prussian #0b4f8a for the thesis, carmine #c1121f for downside; Literata.
+   LAYOUT: thesis band, my-work/Claude box, four tabs like the avocado dashboard. */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0f1217);--panel:light-dark(#f4f6f8,#171b22);--ink:light-dark(#10131a,#e7e9ee);--mute:light-dark(#566070,#9aa3b2);--line:light-dark(#dde2e8,#2a303a);--pru:light-dark(#0b4f8a,#6fa8dc);--car:light-dark(#c1121f,#ef6b73)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Literata,Georgia,serif;overflow-x:clip}
+.band{padding:clamp(24px,4vw,56px) max(5vw,16px)}.wrap{max-width:1240px;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px max(5vw,16px);border-bottom:1px solid var(--line);font-size:14px}.top a{color:var(--pru);text-decoration:none;min-height:44px;display:inline-flex;align-items:center}.top .sub{color:var(--mute)}
+h1{font-size:clamp(32px,5vw,50px);line-height:1.05;margin:6px 0 10px;font-weight:600;text-wrap:balance}
+h2{font-size:24px;line-height:1.2;margin:0 0 6px;font-weight:600}h3{font-size:17px;margin:0 0 4px}
+.sub{color:var(--mute);font-size:14px;margin:0}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0 10px}
+.kpi{border-top:2px solid var(--ink);padding-top:8px}.kpi b{display:block;font-size:clamp(24px,3.4vw,38px);line-height:1.1;white-space:nowrap}.kpi span{font-size:13px;color:var(--mute)}
+.kpi.buy b{color:var(--pru)}
+.quote{font-size:19px;margin:16px 0 0;max-width:62ch}
+.roles{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0;background:var(--panel);border-radius:6px;margin-top:22px}
+.roles div{padding:16px 20px}.roles div+div{border-left:1px solid var(--line)}
+.roles ul{margin:6px 0 0;padding-left:18px;font-size:15px}.tag{font-size:13px;color:var(--mute)}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;padding:10px 0;border-bottom:1px solid var(--line)}
+nav button{font:inherit;font-size:16px;min-height:44px;padding:0 20px;border:1px solid var(--line);border-radius:22px;background:var(--panel);color:var(--ink);cursor:pointer}
+nav button[aria-selected=true]{background:var(--pru);border-color:var(--pru);color:#fff;font-weight:600}
+.pills button{font-size:14px}
+.next{font:inherit;font-size:16px;min-height:44px;margin-top:28px;padding:0 22px;border:0;border-radius:22px;background:var(--pru);color:#fff;cursor:pointer}
+nav button:focus-visible,input:focus-visible{outline:2px solid var(--pru);outline-offset:2px}
+.tab{display:none}.tab.on{display:block}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.card{border:1px solid var(--line);border-radius:6px;padding:16px}
+.card p{font-size:15px;margin:4px 0 8px}
+.fig{position:relative;min-height:230px}.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin-top:10px}.fig.tall{min-height:340px}
+.split{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:26px;align-items:start}
+.ev{font-size:clamp(40px,6vw,64px);line-height:1;font-weight:600;color:var(--pru);white-space:nowrap}
+.ev.down{color:var(--car)}
+label{font-size:15px;display:block;margin:18px 0 6px}
+input[type=range]{width:100%;height:44px;accent-color:var(--pru)}
+.call{background:var(--panel);border-radius:6px;padding:12px 14px;font-size:15px;margin-top:14px}
+.mixrow{display:flex;height:14px;border-radius:4px;overflow:hidden;gap:2px;margin:10px 0 4px}
+.mixrow i{display:block}.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--mute)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px}
+table{border-collapse:collapse;width:100%;font-size:15px}td,th{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{font-size:13px;color:var(--mute);font-weight:400}
+.pend{color:var(--mute);font-style:italic}
+footer{font-size:13px;color:var(--mute);border-top:1px solid var(--line)}
+@media(max-width:900px){.grid2,.grid3,.split{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.roles{grid-template-columns:minmax(0,1fr)}.roles div+div{border-left:0;border-top:1px solid var(--line)}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<div class="top"><a href="../">← All projects</a><span class="sub">NKT A/S equity pitch · LBS 2026</span></div>
+<header class="band"><div class="wrap">
+<p class="sub">Neuberger Berman Sustainable Investing Challenge 2026 · London Business School · Team 8 · Security &amp; Resilience</p>
+<h1>NKT A/S: Europe already ordered the cables</h1>
+<p class="sub">Picked from a shortlist across the four sub-themes; I dropped 5N Plus on valuation and modelled GTT as the alternative.</p>
+<div class="kpis">
+<div class="kpi buy"><b>BUY</b><span>Recommendation</span></div>
+<div class="kpi"><b>DKK 1,094</b><span>12-month target · 11% above broker average (DKK 987)</span></div>
+<div class="kpi"><b>DKK 868</b><span>Price at pitch</span></div>
+<div class="kpi"><b>+26%</b><span>Expected total return</span></div>
+</div>
+<p class="quote">“The price reflects the cost of the expansion, and little of the cash that comes after.”</p>
+<div class="roles">
+<div><h3>My work</h3><ul><li>Screening across critical infrastructure, supply chain, energy and digital security</li><li>Investment and sustainability thesis</li><li>DCF by business line, scenarios, sensitivities and cross-checks</li><li>The 8-page pitch and its charts</li></ul></div>
+<div><h3>How I used Claude</h3><ul><li>Research: faster data gathering and organisation, every figure sourced</li><li>Build: Excel structure and charts from my assumptions</li><li>Stress-test: devil's advocate reading the pitch as the judges would</li><li>Editing: polishing the English</li></ul></div>
+</div>
+</div></header>
+
+<main class="band" style="padding-top:0"><div class="wrap">
+<nav role="tablist">
+<button role="tab" id="t-thesis" aria-selected="true">Thesis</button>
+<button role="tab" id="t-valuation" aria-selected="false">Valuation</button>
+<button role="tab" id="t-scenarios" aria-selected="false">Scenarios</button>
+<button role="tab" id="t-tracking" aria-selected="false">Tracking</button>
+</nav>
+
+<section class="tab on" id="p-thesis">
+<h2>Three reasons the market is too cautious</h2><p class="tag">Model and valuation: Daniela</p>
+<div class="grid3" style="margin-top:14px">
+<div class="card"><h3>1. Demand is already contracted</h3><p>The Transmission backlog of EUR 11.6bn covers 97% of the revenue I forecast to 2031, and 118% with the TenneT framework agreement. 70% is interconnectors, which governments buy for security of supply.</p><div class="fig" id="f-backlog"></div></div>
+<div class="card"><h3>2. Margins have further to go</h3><p>Transmission margin rose from 15.1% (2025) to 20.2% (Q2-26). I forecast 25% by 2029; my reverse DCF shows today's price implies only about 20.5%.</p><div class="fig" id="f-margin"></div></div>
+<div class="card"><h3>3. The cash arrives in 2028</h3><p>Capex falls from EUR 695m (2025) to EUR 280m (2028E), and free cash flow swings from EUR −491m (2026E) to +476m (2029E). My 2027-28 EBITDA sits 4-7% below consensus, so NKT does not need to surprise.</p><div class="legend" style="margin-top:6px"><span><i style="background:var(--mute)"></i>Capex</span><span><i style="background:var(--pru)"></i>Free cash flow</span><span><i style="background:var(--car)"></i>Negative FCF</span></div><div class="fig" id="f-cash"></div><p class="tag">Reported FCF to 2025, my unlevered FCF from 2026E.</p></div>
+</div>
+<h2 style="margin-top:30px">Sustainability</h2>
+<table class="stack"><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+<tr><td>Revenue aligned with the EU taxonomy</td><td>50%</td></tr>
+<tr><td>Scope 1+2 emissions since 2019</td><td>−67%</td></tr>
+<tr><td>Green financing framework (S&amp;P)</td><td>“Dark green”</td></tr>
+</tbody></table>
+<button class="next" data-go="valuation">Next: Valuation →</button>
+</section>
+
+<section class="tab" id="p-valuation">
+<h2>My target sits above the broker average and the multiple-based checks</h2><p class="tag">Model and valuation: Daniela · DCF by business line (Transmission, Distribution, Grid Solutions &amp; Accessories) · WACC 8.3% incl. a 0.5pp project-concentration premium</p>
+<div class="fig tall" id="f-football"></div>
+<p style="font-size:15px;max-width:70ch">The exit-multiple and P/E checks come out lower because they stop before the cash arrives after 2028. Terminal value is 79% of EV, or 9.8x 2031E EBITDA. The gap to the broker average is the discount rate, not the forecasts.</p>
+<h2 style="margin-top:28px">What moves the value</h2><p class="tag">Value per share at stake, DKK, from my catalyst analysis</p>
+<div class="fig" id="f-stake"></div>
+<h2 style="margin-top:28px">Build your own value</h2><p class="tag">Move my four key inputs. Values come from my DCF sensitivity re-runs; when you move inputs from both pairs at once the result is an approximation.</p>
+<div class="split" style="margin-top:8px"><div>
+<label for="w">WACC: <b id="wv"></b></label><input type="range" id="w" min="0" max="4" step="1" value="2">
+<label for="g">Terminal growth: <b id="gv"></b></label><input type="range" id="g" min="0" max="4" step="1" value="2">
+<label for="m">Transmission margin from 2028: <b id="mv"></b></label><input type="range" id="m" min="0" max="4" step="1" value="2">
+<label for="r">Transmission revenue 2027-31: <b id="rv"></b></label><input type="range" id="r" min="0" max="4" step="1" value="2">
+<button class="next" id="reset" style="background:var(--panel);color:var(--ink);border:1px solid var(--line)">Reset to my base case</button>
+</div><div>
+<div class="ev" id="bv"></div><div class="sub" id="bvr"></div>
+<div class="call" id="bcall"></div>
+</div></div>
+<h2 style="margin-top:28px">Sensitivities</h2><p class="tag">Base-case value per share at 31 Dec 2026, DKK (centre DKK 1,031, which rolls forward to the DKK 1,106 base target). Blue is above today's DKK 868, red below. Each cell is a full re-run of my DCF.</p>
+<div class="grid2"><div><h3>WACC × terminal growth</h3><div class="fig" id="f-s1"></div></div><div><h3>Transmission margin × Transmission revenue</h3><div class="fig" id="f-s2"></div></div></div>
+<p style="font-size:15px;max-width:70ch">The thesis drivers move value about as much as the discount rate: a Transmission margin 6pp lower from 2028 takes the base value to DKK 804, below today's price. My thesis is that the margin holds at 24-25%, while the price only pays for about 20.5%.</p>
+<h2 style="margin-top:28px">Scenario assumptions</h2>
+<div class="scroll"><table><thead><tr><th></th><th>Base (50%)</th><th>Bull (25%)</th><th>Bear (25%)</th></tr></thead><tbody>
+<tr><td>Transmission revenue 2031E (EUR m)</td><td>2,500</td><td>2,850</td><td>2,050</td></tr>
+<tr><td>Transmission EBITDA margin 2029-31E</td><td>25%</td><td>26.5-27%</td><td>20%</td></tr>
+<tr><td>Group EBITDA 2028E (EUR m)</td><td>707</td><td>808</td><td>519</td></tr>
+<tr><td>Terminal growth</td><td>2.0%</td><td>2.5%</td><td>1.5%</td></tr>
+<tr><td>Implied EV/EBITDA 2027E</td><td>12.9x</td><td>16.4x</td><td>8.1x</td></tr>
+<tr><td>12-month price target (DKK)</td><td>1,106</td><td>1,577</td><td>585</td></tr>
+<tr><td>Expected total return</td><td>+27%</td><td>+82%</td><td>−33%</td></tr>
+</tbody></table></div>
+<button class="next" data-go="scenarios">Next: Scenarios →</button>
+</section>
+
+<section class="tab" id="p-scenarios">
+<h2>Challenge my thesis</h2><p class="tag">My weights: 25% bull, 50% base, 25% bear. Whatever you add to bull or bear comes out of the base case.</p>
+<div class="split" style="margin-top:12px">
+<div>
+<div class="ev" id="ev">DKK 1,094</div><div class="sub" id="evr">Expected value · +26% vs DKK 868</div>
+<label for="bear">Probability of the bear case: <b id="bearv">25%</b></label>
+<input type="range" id="bear" min="0" max="100" step="1" value="25">
+<label for="bull">Probability of the bull case: <b id="bullv">25%</b></label>
+<input type="range" id="bull" min="0" max="50" step="1" value="25">
+<div class="mixrow" id="mix"></div>
+<div class="legend"><span><i style="background:var(--pru)"></i>Bull DKK 1,577</span><span><i style="background:#8a96a8"></i>Base DKK 1,106</span><span><i style="background:var(--car)"></i>Bear DKK 585</span></div>
+<div class="call" id="call"></div>
+</div>
+<div class="fig tall" id="f-scen"></div>
+</div>
+<h2 style="margin-top:34px">The forecast behind each scenario</h2>
+<nav class="pills" id="metric" aria-label="Metric" style="position:static;border:0;padding:0">
+<button data-k="rev" aria-selected="true">Transmission revenue</button><button data-k="mar" aria-selected="false">Transmission margin</button><button data-k="ebitda" aria-selected="false">Group EBITDA</button><button data-k="fcf" aria-selected="false">Unlevered FCF</button></nav>
+<div class="fig tall" id="f-fc"></div>
+<button class="next" data-go="tracking">Next: Tracking →</button>
+</section>
+
+<section class="tab" id="p-tracking">
+<h2>The thesis is still alive</h2><p class="tag">KPIs and thresholds defined by me, tracked nightly by a Claude agent</p>
+<table class="stack" style="margin-top:12px"><thead><tr><th>Argument</th><th>KPI to watch</th><th>Status</th></tr></thead><tbody>
+<tr><td>Demand is contracted</td><td>New TenneT and interconnector orders; backlog vs. forecast revenue</td><td class="pend">Live status coming soon</td></tr>
+<tr><td>Margins have room</td><td>Transmission margin each quarter vs. the 20.5% the market implies</td><td class="pend">Live status coming soon</td></tr>
+<tr><td>Cash arrives in 2028</td><td>2027 capex guidance; progress of new plants and the NKT Eleonora vessel</td><td class="pend">Live status coming soon</td></tr>
+<tr><td>Price vs. target</td><td>Share price vs. DKK 1,094</td><td class="pend">Live status coming soon</td></tr>
+</tbody></table>
+<div class="call"><b>When I would change my mind:</b> if the Transmission margin falls back below 19%, or if a whole year goes by without a major new order.</div>
+<h3 style="margin-top:24px">Catalysts</h3>
+<p style="font-size:15px">Q3 results (19 Nov 2026), conversion of TenneT's &gt;EUR 2.5bn framework into backlog, new capacity starting up during 2027 (Karlskrona, Cologne, NKT Eleonora), 2027 capex guidance, and the Czech and Slovak antitrust rulings.</p>
+<h3 style="margin-top:24px">Risks I flagged</h3>
+<p style="font-size:15px">Competitors adding capacity, cost overruns on fixed-price projects, delays to new plants and the NKT Eleonora, and an outflow of customer prepayments.</p>
+</section>
+</div></main>
+
+<footer class="band"><div class="wrap">Sources: NKT reports and other public primary sources, cited in the pitch. Interactive version built with Claude from my model and pitch. Bloomberg data is summarised, not reproduced. Not investment advice.</div></footer>
+
+<script>
+{
+const PAL={light:{'--ink':'#10131a','--mute':'#566070','--line':'#dde2e8','--pru':'#0b4f8a','--car':'#c1121f'},dark:{'--ink':'#e7e9ee','--mute':'#9aa3b2','--line':'#2a303a','--pru':'#6fa8dc','--car':'#ef6b73'}};
+const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+const css=n=>PAL[isDark()?'dark':'light'][n];
+const tabs=['thesis','valuation','scenarios','tracking'];
+const base=()=>({paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',font:{family:'Literata, Georgia, serif',size:13,color:css('--ink')},margin:{l:44,r:12,t:10,b:36},showlegend:false,hoverlabel:{font:{family:'Literata, Georgia, serif'}}});
+const ax=o=>Object.assign({gridcolor:css('--line'),zeroline:false,linecolor:css('--line'),fixedrange:true},o);
+const cfg={displayModeBar:false,responsive:true};
+const draw={
+ thesis(){
+  Plotly.react('f-backlog',[{type:'bar',orientation:'h',y:['Backlog only','With TenneT'],x:[97,118],marker:{color:[css('--pru'),css('--pru')],opacity:[1,.6]},text:['97%','118%'],textposition:'inside',insidetextanchor:'start',textfont:{color:'#fff',size:14},cliponaxis:false,hovertemplate:'%{y}: %{x}% of forecast revenue to 2031<extra></extra>'}],Object.assign(base(),{margin:{l:96,r:16,t:26,b:36},xaxis:ax({range:[0,125],ticksuffix:'%'}),yaxis:ax({autorange:'reversed'}),shapes:[{type:'line',x0:100,x1:100,y0:-.5,y1:1.5,line:{color:css('--ink'),dash:'dot',width:1}}],annotations:[{x:100,yref:'paper',y:1,text:'100% of forecast',showarrow:false,yshift:10,font:{size:11,color:css('--mute')}}]}),cfg);
+  Plotly.react('f-margin',[{x:['2025A','Q2-26','2029E'],y:[15.1,20.2,25],mode:'lines+markers+text',line:{color:css('--pru'),width:2},marker:{size:9},text:['15.1%','20.2%','25%'],textposition:['bottom right','top left','top left'],cliponaxis:false,hovertemplate:'%{x}: %{y}%<extra></extra>'}],Object.assign(base(),{xaxis:ax({type:'category'}),yaxis:ax({range:[10,28],ticksuffix:'%'}),shapes:[{type:'line',xref:'paper',x0:0,x1:1,y0:20.5,y1:20.5,line:{color:css('--car'),dash:'dash',width:1.5}}],annotations:[{xref:'paper',x:1,y:20.5,text:'Priced in ≈20.5%',showarrow:false,yshift:-11,xanchor:'right',font:{size:12,color:css('--car')}}]}),cfg);
+  {const yrs=['24A','25A','26E','27E','28E','29E','30E','31E'];
+  Plotly.react('f-cash',[{type:'bar',name:'Capex',x:yrs,y:[463,695,530,450,280,169,178,184],marker:{color:css('--mute')},hovertemplate:'Capex %{x}: EUR %{y}m<extra></extra>'},{type:'bar',name:'Free cash flow',x:yrs,y:[400,-244,-491,21,355,476,456,572],marker:{color:[400,-244,-491,21,355,476,456,572].map(v=>v<0?css('--car'):css('--pru'))},hovertemplate:'Free cash flow %{x}: EUR %{y}m<extra></extra>'}],Object.assign(base(),{barmode:'group',bargap:.25,bargroupgap:.08,margin:{l:52,r:8,t:10,b:36},yaxis:ax({range:[-600,800],title:{text:'EUR m',font:{size:12}},zeroline:true,zerolinecolor:css('--line')}),xaxis:ax({type:'category',tickangle:0,tickfont:{size:11}})}),cfg);}
+ },
+ valuation(){
+  const nar=document.getElementById('f-football').clientWidth<560;
+  const rows=[['Broker targets (15)',495,1277,987],['Bear to bull scenarios',585,1577,null],['Harsher stress test',419,419,null],['16x 2028E EPS',897,897,null],['9x exit EV/EBITDA',968,968,null],['My target (weighted)',1094,1094,null]];
+  const col=r=>r[0].startsWith('My')?css('--pru'):r[0].startsWith('Bear')?css('--pru'):css('--mute');
+  const tr=[{type:'bar',orientation:'h',y:rows.map(r=>r[0]),base:rows.map(r=>r[1]),x:rows.map(r=>Math.max(r[2]-r[1],12)),marker:{color:rows.map(col),opacity:rows.map(r=>r[0].startsWith('Bear')||r[0].startsWith('Broker')?.4:1)},customdata:rows.map(r=>r[1]===r[2]?'DKK '+r[1].toLocaleString('en'):'DKK '+r[1].toLocaleString('en')+' – '+r[2].toLocaleString('en')+(r[3]?' (average '+r[3]+')':'')),hovertemplate:'%{y}: %{customdata}<extra></extra>'},
+   {type:'scatter',mode:'markers',y:[nar?'Brokers':'Broker targets (15)'],x:[987],marker:{symbol:'line-ns-open',size:22,color:css('--ink'),line:{width:3,color:css('--ink')}},hovertemplate:'Broker average: DKK 987<extra></extra>'}];
+  if(nar)tr.forEach(t=>t.y=t.y.map(s=>({'Broker targets (15)':'Brokers','Bear to bull scenarios':'Bear–bull','Harsher stress test':'Stress test','16x 2028E EPS':'16x P/E','9x exit EV/EBITDA':'9x exit','My target (weighted)':'My target'})[s]||s));
+  Plotly.react('f-football',tr,Object.assign(base(),{margin:{l:nar?80:170,r:16,t:28,b:44},xaxis:ax({range:[350,1700],title:{text:'DKK per share',font:{size:12}}}),yaxis:ax({autorange:'reversed'}),shapes:[{type:'line',x0:868,x1:868,yref:'paper',y0:0,y1:1,line:{color:css('--car'),width:2}}],annotations:[{x:868,yref:'paper',y:1,yanchor:'bottom',text:'Price 868',showarrow:false,yshift:4,font:{size:12,color:css('--car')}}]}),cfg);
+  const st=[['Terminal growth<br>±0.5pp',-75,75,'about ±DKK 70-80'],['Capacity ramp<br>10% slower',-90,0,'about −DKK 90'],['Antitrust fine<br>(bear case)',-10,0,'about −DKK 10']];
+  Plotly.react('f-stake',[{type:'bar',orientation:'h',y:st.map(r=>r[0]),x:st.map(r=>r[1]),marker:{color:css('--car')},customdata:st.map(r=>r[3]),hovertemplate:'%{y}: %{customdata}<extra></extra>'},{type:'bar',orientation:'h',y:st.map(r=>r[0]),x:st.map(r=>r[2]),marker:{color:css('--pru')},customdata:st.map(r=>r[3]),hovertemplate:'%{y}: %{customdata}<extra></extra>'}],Object.assign(base(),{barmode:'overlay',margin:{l:110,r:16,t:10,b:40},xaxis:ax({range:[-110,110],title:{text:'DKK per share',font:{size:12}},zeroline:true,zerolinecolor:css('--ink')}),yaxis:ax({autorange:'reversed'})}),cfg);
+
+  const hm=(id,z,xs,ys,xt,yt)=>{const sc=[[0,css('--car')],[(868-640)/(1450-640),isDark()?'#3a3f48':'#eef0f3'],[1,css('--pru')]];
+   const an=[];z.forEach((r,i)=>r.forEach((v,j)=>{const strong=v<720||v>1180;an.push({x:xs[j],y:ys[i],text:Math.round(v).toLocaleString('en'),showarrow:false,font:{size:12,color:strong?'#fff':css('--ink')}})}));
+   Plotly.react(id,[{type:'heatmap',z,x:xs,y:ys,zmin:640,zmax:1450,colorscale:sc,showscale:false,xgap:2,ygap:2,hovertemplate:yt+' %{y}, '+xt+' %{x}: DKK %{z:,.0f}<extra></extra>'}],Object.assign(base(),{annotations:an,margin:{l:86,r:8,t:8,b:48},xaxis:ax({type:'category',title:{text:xt,font:{size:12},standoff:8}}),yaxis:ax({type:'category',autorange:'reversed',ticksuffix:'  ',title:{text:yt,font:{size:12},standoff:12}})}),cfg)};
+  hm('f-s1',[[1012,1089,1180,1290,1424],[938,1004,1080,1171,1279],[901,961,1031,1112,1209],[819,868,924,988,1063],[770,813,861,916,980]],['1.0%','1.5%','2.0%','2.5%','3.0%'],['7.5%','8.0%','8.3%','9.0%','9.5%'],'Terminal growth','WACC');
+  hm('f-s2',[[664,734,804,873,943],[755,836,917,998,1080],[845,938,1031,1123,1216],[906,1006,1106,1206,1307],[967,1074,1182,1290,1397]],['80%','90%','100%','110%','120%'],['−6pp','−3pp','Base','+2pp','+4pp'],'Revenue vs base','Margin shift');
+ },
+ scenarios(){upd();drawFc()}
+};
+
+const FC={yrs:['2026E','2027E','2028E','2029E','2030E','2031E'],
+ rev:{t:'EUR m',d:{Bull:[1480,1850,2300,2600,2750,2850],Base:[1450,1750,2150,2350,2450,2500],Bear:[1400,1600,1850,2000,2050,2050]}},
+ mar:{t:'%',d:{Bull:[18.5,22.5,25.5,26.5,27,27],Base:[18,21,24,25,25,25],Bear:[17.5,19,20,20,20,20]}},
+ ebitda:{t:'EUR m',d:{Bull:[437,620,808,931,1007,1059],Base:[424,548,707,790,827,853],Bear:[408,451,519,552,565,567]}},
+ fcf:{t:'EUR m',d:{Bull:[-441,186,517,693,681,738],Base:[-491,21,355,476,456,572],Bear:[-552,-217,137,264,269,288]}}};
+let fk='rev';
+function drawFc(){const m=FC[fk],cl={Bull:css('--pru'),Base:css('--mute'),Bear:css('--car')};
+ const tr=Object.keys(m.d).map(k=>({x:FC.yrs,y:m.d[k],name:k,mode:'lines+markers',line:{color:cl[k],width:2},marker:{size:8},hovertemplate:k+' %{x}: %{y}'+(m.t==='%'?'%':' EUR m')+'<extra></extra>'}));
+ const sh=fk==='mar'?[{type:'line',xref:'paper',x0:0,x1:1,y0:20.5,y1:20.5,line:{color:css('--car'),dash:'dot',width:1}}]:[];
+ Plotly.react('f-fc',tr,Object.assign(base(),{showlegend:true,legend:{orientation:'h',y:1.1},margin:{l:56,r:12,t:30,b:36},xaxis:ax({type:'category'}),yaxis:ax({title:{text:m.t,font:{size:12}},zeroline:fk==='fcf',zerolinecolor:css('--line')}),shapes:sh,annotations:fk==='mar'?[{xref:'paper',x:1,y:20.5,text:'Priced in ≈20.5%',showarrow:false,yshift:10,xanchor:'right',font:{size:12,color:css('--car')}}]:[]}),cfg)}
+document.querySelectorAll('#metric button').forEach(bt=>bt.addEventListener('click',()=>{fk=bt.dataset.k;document.querySelectorAll('#metric button').forEach(x=>x.setAttribute('aria-selected',x===bt));drawFc()}));
+const T1=[[1012,1089,1180,1290,1424],[938,1004,1080,1171,1279],[901,961,1031,1112,1209],[819,868,924,988,1063],[770,813,861,916,980]];
+const T2=[[664,734,804,873,943],[755,836,917,998,1080],[845,938,1031,1123,1216],[906,1006,1106,1206,1307],[967,1074,1182,1290,1397]];
+const WL=['7.5%','8.0%','8.3%','9.0%','9.5%'],GL=['1.0%','1.5%','2.0%','2.5%','3.0%'],ML=['24-25% −6pp','24-25% −3pp','24-25% (my base)','24-25% +2pp','24-25% +4pp'],RL=['80% of my base','90% of my base','100% (my base)','110% of my base','120% of my base'];
+const MI=[4,3,2,1,0];
+function build(){const v=i=>+document.getElementById(i).value;const w=v('w'),g=v('g'),m=v('m'),r=v('r');
+ ['w','g','m','r'].forEach((k,i)=>document.getElementById(k+'v').textContent=[WL,GL,ML,RL][i][v(k)]);
+ const end=T1[w][g]*T2[MI[4-m]][r]/1031;const tgt=end*1106/1031;const ret=tgt/868-1;
+ const e=document.getElementById('bv');e.textContent='DKK '+Math.round(tgt).toLocaleString('en');e.classList.toggle('down',ret<0);
+ document.getElementById('bvr').textContent='12-month value · '+(ret>=0?'+':'\u2212')+Math.abs(ret*100).toFixed(0)+'% vs DKK 868 · DKK '+Math.round(end).toLocaleString('en')+' at end-2026';
+ const mixed=(w!==2||g!==2)&&(m!==2||r!==2);
+ document.getElementById('bcall').textContent=(ret<0?'Below today\u2019s price. ':'Still above today\u2019s price. ')+(m<2?'A lower margin is the risk I watch most: my line in the sand is 19%. ':'')+(mixed?'Approximate: inputs from both pairs moved together.':'');}
+['w','g','m','r'].forEach(i=>document.getElementById(i).addEventListener('input',build));
+document.getElementById('reset').addEventListener('click',()=>{['w','g','m','r'].forEach(i=>document.getElementById(i).value=2);build()});
+
+const S={bull:1577,base:1106,bear:585,px:868};
+function upd(){
+ let b=+document.getElementById('bear').value/100,bull=+document.getElementById('bull').value/100;if(b+bull>1){b=1-bull;document.getElementById('bear').value=Math.round(b*100)}const bs=Math.max(0,1-b-bull);
+ const ev=bull*S.bull+bs*S.base+b*S.bear,ret=ev/S.px-1;
+ const e=document.getElementById('ev');e.textContent='DKK '+Math.round(ev).toLocaleString('en');e.classList.toggle('down',ret<0);
+ document.getElementById('evr').textContent='Expected value · '+(ret>=0?'+':'−')+Math.abs(ret*100).toFixed(0)+'% vs DKK 868';
+ document.getElementById('bearv').textContent=Math.round(b*100)+'%';document.getElementById('bullv').textContent=Math.round(bull*100)+'%';
+ document.getElementById('mix').innerHTML=[[bull,'var(--pru)'],[bs,'#8a96a8'],[b,'var(--car)']].filter(x=>x[0]>0).map(x=>'<i style="width:'+x[0]*100+'%;background:'+x[1]+'"></i>').join('');
+ const c=document.getElementById('call');
+ c.textContent=ret<0?'Below today\u2019s price: this mix is more pessimistic than the market.':Math.abs(bull-.25)>.01&&b<.66?'With your weights the expected value is '+(ret>=0?'+':'\u2212')+Math.abs(ret*100).toFixed(0)+'% vs today. My base weight is 50% because 2026E is inside guidance and 2027-28E is below consensus.':b<=.3?'My view: 25% bear. 97% of forecast revenue to 2031 is already in the backlog, so the downside needs both cancellations and margin collapse.':b<.66?'Still above today’s price. The bear case has to become the most likely outcome before the stock looks fairly valued.':'At about 68-70% bear, the expected value meets today’s price. That is roughly what the market is pricing in, and why I see the risk/reward as asymmetric.';
+ Plotly.react('f-scen',[{type:'bar',x:['Bear','Base','Bull','Expected'],y:[S.bear,S.base,S.bull,ev],marker:{color:[css('--car'),'#8a96a8',css('--pru'),css('--ink')]},text:[S.bear,S.base,S.bull,Math.round(ev)].map(v=>'DKK '+v.toLocaleString('en')),textposition:'outside',cliponaxis:false,hovertemplate:'%{x}: %{text}<extra></extra>'}],Object.assign(base(),{margin:{l:64,r:24,t:10,b:36},yaxis:ax({range:[0,1800],title:{text:'DKK per share',font:{size:12}}}),xaxis:ax({}),shapes:[{type:'line',xref:'paper',x0:0,x1:1,y0:868,y1:868,line:{color:css('--car'),dash:'dash',width:1.5}}],annotations:[{xref:'paper',x:0,y:868,text:'Price 868',showarrow:false,yshift:9,xanchor:'left',font:{size:12,color:css('--car')}}]}),cfg);
+}
+['bear','bull'].forEach(i=>document.getElementById(i).addEventListener('input',upd));
+function show(n){tabs.forEach(t=>{document.getElementById('t-'+t).setAttribute('aria-selected',t===n);document.getElementById('p-'+t).classList.toggle('on',t===n)});requestAnimationFrame(()=>draw[n]&&draw[n]());}
+tabs.forEach(t=>document.getElementById('t-'+t).addEventListener('click',()=>{show(t);try{history.replaceState(null,'','#'+t)}catch(e){}}));
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{const k=tabs.find(t=>document.getElementById('p-'+t).classList.contains('on'));draw[k]&&draw[k]()},200)});
+document.querySelectorAll('.next').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.go);document.querySelector('nav').scrollIntoView({behavior:'smooth'})}));
+const h=location.hash.slice(1);show(tabs.includes(h)?h:'thesis');upd();build();
+new MutationObserver(()=>{const k=tabs.find(t=>document.getElementById('p-'+t).classList.contains('on'));draw[k]&&draw[k]()}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+window.addEventListener('hashchange',()=>{const k=location.hash.slice(1);if(tabs.includes(k))show(k)});
+}
+</script>
+</body></html>

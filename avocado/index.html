@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Avocado market dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head><body>
+<div class="top"><a href="../">← All projects</a><span class="sub">Avocado market · LBS 2026</span></div>
+<header class="band"><div class="wrap">
+<p class="sub">London Business School · individual project · 52,483 weekly observations, 59 US regions, Jan 2015 – Dec 2023</p>
+<h1>Avocado buyers barely react to price, so a grocer can price for the season</h1>
+<div class="kpis">
+<div class="kpi hi"><b>−0.90</b><span>Price elasticity, conventional (log-log OLS)</span></div>
+<div class="kpi"><b>Feb</b><span>Cheapest month; prices peak Jul–Sep</span></div>
+<div class="kpi"><b>+9.3%</b><span>Revenue CAGR in Charlotte, the fastest clean series</span></div>
+<div class="kpi"><b>$1.69</b><span>Average organic price vs $1.17 conventional</span></div>
+</div>
+<p style="font-size:18px;max-width:68ch;margin:10px 0 0">Three actions for a chain with 500+ US stores: raise prices in peak season and promote in February, add distribution in fast-growing Southeast cities, and drop extra-large bags where they barely sell.</p>
+<div class="roles">
+<div><h3>My work</h3><ul><li>The business question and the analysis plan</li><li>Cleaning and aggregating the data in pandas</li><li>Seasonality, regional growth (CAGR) and bag-size mix</li><li>Price elasticity with a log-log regression, and the recommendations</li></ul></div>
+<div><h3>How I used Claude</h3><ul><li>Build: turned my notebook into this interactive dashboard, after I approved its plan</li><li>The analysis logic is the same as in my notebook</li><li>Claude pre-computed the aggregates so the page opens instantly, with no server</li></ul></div>
+</div>
+</div></header>
+<main class="band" style="padding-top:0"><div class="wrap">
+<nav class="tabs" role="tablist">
+<button class="pill" role="tab" id="t-prices">Prices</button><button class="pill" role="tab" id="t-trends">Trends</button><button class="pill" role="tab" id="t-regions">Regions</button><button class="pill" role="tab" id="t-volume">Volume &amp; bags</button><button class="pill" role="tab" id="t-deep">Deep dives</button>
+</nav>
+
+<section class="tab" id="p-prices">
+<h2>Organic sells at a steady premium of about 50 cents</h2>
+<div class="pills" id="f1"><button class="pill" data-v="All" aria-pressed="true">All</button><button class="pill" data-v="conventional" aria-pressed="false">Conventional</button><button class="pill" data-v="organic" aria-pressed="false">Organic</button></div>
+<div class="grid2"><div><h3>Price distribution</h3><p class="tag">Share of weekly observations by average price</p><div class="legend"><span><i style="background:var(--pru)"></i>Conventional</span><span><i style="background:#2e7d4f"></i>Organic</span></div><div class="fig" id="f-hist"></div></div><div><h3>Overall spread</h3><p class="tag">Box: 25th–75th percentile, line: median, whiskers: 1.5×IQR</p><div class="fig" id="f-box"></div></div></div>
+<h3 style="margin-top:22px">By region, sorted by median price</h3><p class="tag" id="regnote"></p>
+<div class="fig" id="f-regbox" style="min-height:1100px"></div>
+<button class="next" data-go="trends">Next: Trends →</button>
+</section>
+
+<section class="tab" id="p-trends">
+<h2>Prices rise from February to a summer peak</h2>
+<div class="grid3" style="align-items:end">
+<div><label>Type</label><div class="pills" id="f2t"><button class="pill" data-v="both" aria-pressed="true">Both</button><button class="pill" data-v="conventional" aria-pressed="false">Conventional</button><button class="pill" data-v="organic" aria-pressed="false">Organic</button></div></div>
+<div><label>Aggregation</label><div class="pills" id="f2a"><button class="pill" data-v="W" aria-pressed="true">Weekly</button><button class="pill" data-v="M" aria-pressed="false">Monthly</button><button class="pill" data-v="Q" aria-pressed="false">Quarterly</button></div></div>
+<div><label for="y0">Years</label><div style="display:flex;gap:8px;align-items:center"><select id="y0"></select><span>to</span><select id="y1"></select></div></div>
+</div>
+<div class="legend"><span><i style="background:var(--pru)"></i>Conventional</span><span><i style="background:#2e7d4f"></i>Organic</span></div><div class="fig" id="f-trend"></div>
+<div class="grid2" style="margin-top:12px"><div><h3>Seasonal pattern</h3><p class="tag">Average price by calendar month</p><div class="fig" id="f-seas"></div></div><div><h3>Year over year</h3><p class="tag">Annual average price</p><div class="fig" id="f-yoy"></div></div></div>
+<button class="next" data-go="regions">Next: Regions →</button>
+</section>
+
+<section class="tab" id="p-regions">
+<h2>Where avocados are dear, and where the money is</h2>
+<div class="grid3" style="align-items:end">
+<div><label>Metric</label><div class="pills" id="f3m"><button class="pill" data-v="price" aria-pressed="true">Average price</button><button class="pill" data-v="revenue" aria-pressed="false">Total revenue</button></div></div>
+<div><label>Type (revenue)</label><div class="pills" id="f3t"><button class="pill" data-v="conventional" aria-pressed="true">Conventional</button><button class="pill" data-v="organic" aria-pressed="false">Organic</button></div></div>
+<div><label for="f3n">Regions shown: <b id="f3nv">10</b></label><input type="range" id="f3n" min="5" max="25" step="5" value="10"></div>
+</div>
+<p class="tag" id="f3note"></p>
+<div class="fig" id="f-rank"></div>
+<button class="next" data-go="volume">Next: Volume &amp; bags →</button>
+</section>
+
+<section class="tab" id="p-volume">
+<h2>Small bags carry the volume; extra-large barely sells</h2>
+<div class="grid2">
+<div><h3>Volume vs price</h3><div class="pills" id="f4s"><button class="pill" data-v="log" aria-pressed="true">Log scale</button><button class="pill" data-v="linear" aria-pressed="false">Linear</button></div><div class="legend"><span><i style="background:var(--pru)"></i>Conventional</span><span><i style="background:#2e7d4f"></i>Organic</span></div><div class="fig" id="f-sc"></div><p class="note">A random sample of 3,000 weeks per type is plotted; the correlations use all 52,483.</p></div>
+<div><h3>Correlation of price with log(volume)</h3><div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="kpi"><b id="rc"></b><span>Conventional</span></div><div class="kpi"><b id="ro"></b><span>Organic</span></div></div>
+<p style="font-size:15px">Weak on its own, because region size drives volume far more than price does. The elasticity in Deep dives controls for this with logs.</p>
+<h3 style="margin-top:18px">Bag sizes by type</h3><p class="tag">Share of bagged units</p><div class="legend"><span><i style="background:var(--pru)"></i>Small</span><span><i style="background:#8a96a8"></i>Large</span><span><i style="background:var(--car)"></i>Xlarge</span></div><div class="fig sm" id="f-bt"></div></div>
+</div>
+<h3 style="margin-top:22px">Bag sizes by region</h3>
+<div class="pills" id="f4r"><button class="pill" data-v="top" aria-pressed="true">Top 10 by volume</button><button class="pill" data-v="bottom" aria-pressed="false">Bottom 10 by volume</button></div>
+<div class="legend"><span><i style="background:var(--pru)"></i>Small</span><span><i style="background:#8a96a8"></i>Large</span><span><i style="background:var(--car)"></i>Xlarge</span></div><div class="fig tall" id="f-br"></div>
+<button class="next" data-go="deep">Next: Deep dives →</button>
+</section>
+
+<section class="tab" id="p-deep">
+<h2>Growth is in the Southeast; demand is inelastic</h2>
+<div class="grid3" style="align-items:end">
+<div><label for="f5g">Fastest-growing regions: <b id="f5gv">5</b></label><input type="range" id="f5g" min="3" max="15" step="1" value="5"></div>
+<div><label for="f5d">Declining regions: <b id="f5dv">4</b></label><input type="range" id="f5d" min="1" max="10" step="1" value="4"></div>
+<div><label style="display:flex;gap:10px;align-items:center;min-height:44px"><input type="checkbox" id="f5x" checked style="width:20px;height:20px;accent-color:var(--pru)"> Hide Miami and MiamiFtLauderdale</label></div>
+</div>
+<p class="tag">Revenue CAGR from each region's first to last full year. Miami was renamed MiamiFtLauderdale in 2021, so both series are broken and their CAGRs are not meaningful.</p>
+<div class="fig" id="f-cagr"></div>
+<h2 style="margin-top:30px">Price elasticity of demand</h2>
+<div class="pills" id="f5e"><button class="pill" data-v="conventional" aria-pressed="true">Conventional</button><button class="pill" data-v="organic" aria-pressed="false">Organic</button></div>
+<div class="split" style="margin-top:8px">
+<div><div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:0"><div class="kpi hi"><b id="eb"></b><span>Elasticity (β)</span></div><div class="kpi"><b id="ei"></b><span>Reading</span></div><div class="kpi"><b id="er"></b><span>R²</span></div><div class="kpi"><b id="ep"></b><span>p-value</span></div></div>
+<p style="font-size:15px" id="etext"></p></div>
+<div><div class="legend"><span><i style="background:var(--pru)"></i>Weekly observations (sample)</span><span><i style="background:var(--ink);height:2px;width:14px"></i>OLS fit, all weeks</span></div><div class="fig" id="f-el"></div></div>
+</div>
+</section>
+</div></main>
+<footer class="band"><div class="wrap">Data: weekly Hass avocado retail scan data (Hass Avocado Board), 2015–2023. Analysis by Daniela Pomasunco; interactive version built with Claude from my notebook. <a href="https://github.com/DaniPomasunco/avocado_dashboard">Code</a></div></footer>
+<script src="../assets/site.js"></script>
+<script>
+{
+const S=SITE,c=S.c,base=S.base,ax=S.ax,cfg=S.cfg;
+const TC=()=>({conventional:c('pru'),organic:c('org')});
+const lab={conventional:'Conventional',organic:'Organic'};
+let D=null;
+const st={t1:'All',t2:'both',ag:'W',m3:'price',t3:'conventional',s4:'log',r4:'top',e5:'conventional'};
+const box=(name,v,color,o)=>Object.assign({type:'box',name,q1:[v[1]],median:[v[2]],q3:[v[3]],lowerfence:[v[0]],upperfence:[v[4]],mean:[v[5]],marker:{color},line:{color,width:1.5},fillcolor:color+'33',hoverinfo:'y+name'},o||{});
+const draw={
+ prices(){if(!D)return;const t=st.t1,types=t==='All'?['conventional','organic']:[t],tc=TC();
+  const e=D.hist.edges,mid=e.slice(0,-1).map((x,i)=>+(x+0.025).toFixed(3));
+  Plotly.react('f-hist',types.map(k=>{const n=D.hist[k],tot=n.reduce((a,b)=>a+b,0);return{type:'bar',name:lab[k],x:mid,y:n.map(v=>v/tot*100),marker:{color:tc[k],opacity:types.length>1?.6:.9},hovertemplate:lab[k]+' $%{x:.2f}: %{y:.1f}%<extra></extra>'}}),base({barmode:'overlay',bargap:0,showlegend:types.length>1,legend:{orientation:'h',y:1.1},margin:{l:48,r:10,t:26,b:44},xaxis:ax({title:{text:'Average price ($)'},tickprefix:'$'}),yaxis:ax({ticksuffix:'%'})}),cfg);
+  const ov=t==='All'?['All','conventional','organic']:[t];
+  Plotly.react('f-box',ov.map(k=>box(k==='All'?'All':lab[k],D.box_overall[k],k==='All'?c('grey'):tc[k],{x:[k==='All'?'All':lab[k]],hoverinfo:'skip'})),base({margin:{l:48,r:10,t:10,b:36},yaxis:ax({tickprefix:'$',title:{text:'Average price'}}),xaxis:ax({})}),cfg);
+  const src=t==='All'?D.box_all:D.box[t],regs=D.regions.slice().sort((a,b)=>src[a][2]-src[b][2]);
+  const col=t==='All'?c('grey'):tc[t];
+  Plotly.react('f-regbox',[{type:'box',orientation:'h',y:regs,q1:regs.map(r=>src[r][1]),median:regs.map(r=>src[r][2]),q3:regs.map(r=>src[r][3]),lowerfence:regs.map(r=>src[r][0]),upperfence:regs.map(r=>src[r][4]),marker:{color:col},line:{color:col,width:1},fillcolor:col+'40',hovertemplate:'%{y}<extra></extra>'}],base({margin:{l:S.narrow('f-regbox')?120:150,r:10,t:10,b:44},xaxis:ax({tickprefix:'$',title:{text:'Average price ($)'},side:'top'}),yaxis:ax({tickfont:{size:11}})}),cfg);
+  document.getElementById('regnote').textContent='Cheapest median: '+regs[0]+' ($'+src[regs[0]][2].toFixed(2)+'). Dearest: '+regs[regs.length-1]+' ($'+src[regs[regs.length-1]][2].toFixed(2)+').';
+ },
+ trends(){if(!D)return;const y0=+document.getElementById('y0').value,y1=+document.getElementById('y1').value,types=st.t2==='both'?['conventional','organic']:[st.t2],tc=TC();
+  const key=(d)=>st.ag==='W'?d:st.ag==='M'?d.slice(0,7)+'-15':d.slice(0,4)+'-'+String(Math.floor((+d.slice(5,7)-1)/3)*3+2).padStart(2,'0')+'-15';
+  const tr=[],seas=[],yoy=[];
+  types.forEach(k=>{const w=D.weekly[k],g={},m={},y={};
+   w.d.forEach((d,i)=>{const yr=+d.slice(0,4);if(yr<y0||yr>y1)return;const kk=key(d);(g[kk]=g[kk]||[0,0]);g[kk][0]+=w.s[i];g[kk][1]+=w.c[i];const mm=+d.slice(5,7);(m[mm]=m[mm]||[0,0]);m[mm][0]+=w.s[i];m[mm][1]+=w.c[i];(y[yr]=y[yr]||[0,0]);y[yr][0]+=w.s[i];y[yr][1]+=w.c[i]});
+   const ks=Object.keys(g).sort();tr.push({x:ks,y:ks.map(q=>g[q][0]/g[q][1]),name:lab[k],mode:'lines',line:{color:tc[k],width:2},hovertemplate:lab[k]+': $%{y:.2f}<extra></extra>'});
+   const ms=Object.keys(m).map(Number).sort((a,b)=>a-b);seas.push({x:ms,y:ms.map(q=>m[q][0]/m[q][1]),name:lab[k],mode:'lines+markers',line:{color:tc[k],width:2},marker:{size:8},hovertemplate:lab[k]+' %{x}: $%{y:.2f}<extra></extra>'});
+   const ys=Object.keys(y).sort();yoy.push({type:'bar',x:ys,y:ys.map(q=>y[q][0]/y[q][1]),name:lab[k],marker:{color:tc[k]},hovertemplate:lab[k]+' %{x}: $%{y:.2f}<extra></extra>'});});
+  const lg={showlegend:types.length>1,legend:{orientation:'h',y:1.12}};
+  Plotly.react('f-trend',tr,base(Object.assign({hovermode:'x unified',margin:{l:52,r:12,t:30,b:40},xaxis:ax({type:'date'}),yaxis:ax({tickprefix:'$',title:{text:'Average price'}})},lg)),cfg);
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  Plotly.react('f-seas',seas,base(Object.assign({margin:{l:52,r:10,t:30,b:40},xaxis:ax({tickvals:[1,2,3,4,5,6,7,8,9,10,11,12],ticktext:S.narrow('f-seas')?M.map(x=>x[0]):M}),yaxis:ax({tickprefix:'$'})},lg)),cfg);
+  Plotly.react('f-yoy',yoy,base(Object.assign({barmode:'group',margin:{l:52,r:10,t:30,b:40},xaxis:ax({type:'category'}),yaxis:ax({tickprefix:'$'})},lg)),cfg);
+ },
+ regions(){if(!D)return;const n=+document.getElementById('f3n').value;document.getElementById('f3nv').textContent=n;let y,x,col,title,note;
+  if(st.m3==='price'){const r=D.price_by_region.region.map((g,i)=>[g,D.price_by_region.v[i]]).sort((a,b)=>a[1]-b[1]);const sel=r.slice(0,n).concat(r.slice(-n));
+   y=sel.map(s=>s[0]);x=sel.map(s=>s[1]);col=x.map(v=>v<D.median_price?c('car'):c('pru'));
+   note='Cheapest '+n+' and dearest '+n+' of 59 regions. Red: below the regional median of $'+D.median_price.toFixed(2)+'.';
+   Plotly.react('f-rank',[{type:'bar',orientation:'h',y,x,marker:{color:col},hovertemplate:'%{y}: $%{x:.2f}<extra></extra>'}],base({height:Math.max(380,y.length*24+80),margin:{l:150,r:16,t:30,b:40},xaxis:ax({tickprefix:'$',range:[0.9,Math.max(...x)*1.05]}),yaxis:ax({type:'category',tickfont:{size:11}}),shapes:[{type:'line',x0:D.median_price,x1:D.median_price,yref:'paper',y0:0,y1:1,line:{color:c('ink'),dash:'dash',width:1}}],annotations:[{x:D.median_price,yref:'paper',y:1,yanchor:'bottom',text:'Median $'+D.median_price.toFixed(2),showarrow:false,font:{size:12}}]}),cfg);}
+  else{const rv=D.revenue[st.t3],r=Object.entries(rv).sort((a,b)=>a[1]-b[1]).slice(-n);y=r.map(s=>s[0]);x=r.map(s=>s[1]);
+   note='Top '+n+' regions by total '+lab[st.t3].toLowerCase()+' revenue, 2015–2023 (volume × average price).';
+   Plotly.react('f-rank',[{type:'bar',orientation:'h',y,x,marker:{color:TC()[st.t3]},hovertemplate:'%{y}: $%{x:.3s}<extra></extra>'}],base({height:Math.max(380,y.length*26+80),margin:{l:150,r:16,t:10,b:40},xaxis:ax({tickprefix:'$',tickformat:'.2s'}),yaxis:ax({type:'category',tickfont:{size:11}})}),cfg);}
+  document.getElementById('f3note').textContent=note;document.getElementById('f3t').style.opacity=st.m3==='price'?.45:1;
+ },
+ volume(){if(!D)return;const tc=TC();
+  Plotly.react('f-sc',['conventional','organic'].map(k=>({type:'scattergl',mode:'markers',name:lab[k],x:D.scatter[k].p,y:D.scatter[k].v,marker:{color:tc[k],size:4,opacity:.35},hovertemplate:lab[k]+' $%{x:.2f}, %{y:,.0f} units<extra></extra>'})),base({showlegend:true,legend:{orientation:'h',y:1.1},margin:{l:60,r:10,t:30,b:44},xaxis:ax({tickprefix:'$',title:{text:'Average price'}}),yaxis:ax({type:st.s4,title:{text:'Units sold per week'},tickformat:st.s4==='log'?'.0s':',.0f'})}),cfg);
+  document.getElementById('rc').textContent=D.corr.conventional.toFixed(2);document.getElementById('ro').textContent=D.corr.organic.toFixed(2);
+  const bs=['Small','Large','Xlarge'],bc=[c('pru'),c('grey'),c('car')];
+  Plotly.react('f-bt',bs.map((b,i)=>({type:'bar',orientation:'h',name:b,y:['Conventional','Organic'],x:['conventional','organic'].map(k=>{const t=D.bags_type[k];return t[b]/(t.Small+t.Large+t.Xlarge)*100}),marker:{color:bc[i]},hovertemplate:b+' %{y}: %{x:.1f}% of bagged units<extra></extra>'})),base({barmode:'stack',showlegend:true,legend:{orientation:'h',y:1.18},margin:{l:96,r:10,t:30,b:36},xaxis:ax({ticksuffix:'%',range:[0,100]}),yaxis:ax({})}),cfg);
+  const regs=Object.entries(D.vol_total).sort((a,b)=>b[1]-a[1]).map(r=>r[0]);const sel=(st.r4==='top'?regs.slice(0,10):regs.slice(-10)).reverse();
+  Plotly.react('f-br',bs.map((b,i)=>({type:'bar',orientation:'h',name:b,y:sel,x:sel.map(r=>D.bags_region[r][b]),marker:{color:bc[i]},hovertemplate:b+' %{y}: %{x:,.0f} units<extra></extra>'})),base({barmode:'group',showlegend:true,legend:{orientation:'h',y:1.06},margin:{l:S.narrow('f-br')?110:150,r:10,t:10,b:40},xaxis:ax({tickformat:'.2s',title:{text:S.narrow('f-br')?'Units in bags':'Units sold in bags, 2015–2023'}}),yaxis:ax({type:'category'})}),cfg);
+ },
+ deep(){if(!D)return;const g=+document.getElementById('f5g').value,dn=+document.getElementById('f5d').value,hide=document.getElementById('f5x').checked;
+  document.getElementById('f5gv').textContent=g;document.getElementById('f5dv').textContent=dn;
+  let r=D.cagr.region.map((x,i)=>[x,D.cagr.v[i]]).filter(x=>!(hide&&(x[0]==='Miami'||x[0]==='MiamiFtLauderdale'))).sort((a,b)=>a[1]-b[1]);
+  const sel=r.slice(0,dn).concat(r.slice(-g));
+  Plotly.react('f-cagr',[{type:'bar',orientation:'h',y:sel.map(s=>s[0]),x:sel.map(s=>s[1]),marker:{color:sel.map(s=>s[1]<0?c('car'):c('pru'))},text:sel.map(s=>(s[1]>0?'+':'')+s[1].toFixed(1)+'%'),textposition:'outside',cliponaxis:false,hovertemplate:'%{y}: %{x:.2f}% a year<extra></extra>'}],base({height:Math.max(340,sel.length*28+80),margin:{l:S.narrow('f-cagr')?110:150,r:50,t:10,b:40},xaxis:ax({ticksuffix:'%',zeroline:true,zerolinecolor:c('ink'),range:[Math.min(0,...sel.map(s=>s[1]))*1.8-0.5,Math.max(...sel.map(s=>s[1]))*1.18]}),yaxis:ax({type:'category'})}),cfg);
+  const e=D.elas[st.e5],col=TC()[st.e5];
+  document.getElementById('eb').textContent=e.coef.toFixed(2);document.getElementById('ei').textContent=Math.abs(e.coef)<1?'Inelastic':'Elastic';document.getElementById('er').textContent=e.r2.toFixed(3);document.getElementById('ep').textContent=e.p<0.0001?'< 0.0001':e.p.toFixed(4);
+  document.getElementById('etext').textContent='A 10% price rise cuts '+lab[st.e5].toLowerCase()+' volume by about '+(Math.abs(e.coef)*10).toFixed(0)+'%, so revenue holds up. This is a pooled regression across regions; R² is low because region size explains most of the spread in volume.';
+  Plotly.react('f-el',[{type:'scattergl',mode:'markers',x:e.x,y:e.y,marker:{color:col,size:4,opacity:.3},name:'Weeks',hovertemplate:'log price %{x:.2f}, log volume %{y:.2f}<extra></extra>'},{mode:'lines',x:e.line.map(p=>p[0]),y:e.line.map(p=>p[1]),line:{color:c('ink'),width:2,dash:'dash'},name:'OLS fit',hoverinfo:'skip'}],base({showlegend:true,legend:{orientation:'h',y:1.1},margin:{l:56,r:10,t:30,b:44},xaxis:ax({title:{text:'log(price)'}}),yaxis:ax({title:{text:'log(volume)'}})}),cfg);
+ }
+};
+const T=S.tabs(['prices','trends','regions','volume','deep'],draw);
+S.pills('f1',v=>{st.t1=v;draw.prices()});S.pills('f2t',v=>{st.t2=v;draw.trends()});S.pills('f2a',v=>{st.ag=v;draw.trends()});
+S.pills('f3m',v=>{st.m3=v;draw.regions()});S.pills('f3t',v=>{st.t3=v;if(st.m3==='revenue')draw.regions()});S.pills('f4s',v=>{st.s4=v;draw.volume()});S.pills('f4r',v=>{st.r4=v;draw.volume()});S.pills('f5e',v=>{st.e5=v;draw.deep()});
+['f3n'].forEach(i=>document.getElementById(i).addEventListener('input',draw.regions));['f5g','f5d','f5x'].forEach(i=>document.getElementById(i).addEventListener('input',draw.deep));
+fetch('data.json').then(r=>r.json()).then(j=>{D=j;const ys=D.years.map(y=>'<option>'+y+'</option>').join('');['y0','y1'].forEach((i,k)=>{const s=document.getElementById(i);s.innerHTML=ys;s.value=k?D.years[D.years.length-1]:D.years[0];s.addEventListener('change',()=>{const a=+y0.value,b=+y1.value;if(a>b){if(i==='y0')y1.value=a;else y0.value=b}draw.trends()})});T.redraw()});
+}
+</script>
+</body></html>
