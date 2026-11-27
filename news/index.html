@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stock news agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+.arch{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,8fr);gap:24px;align-items:start}
+.days{max-height:640px;overflow-y:auto;border:1px solid var(--line);border-radius:6px}
+.day{display:block;width:100%;text-align:left;font:inherit;font-size:14px;background:none;border:0;border-bottom:1px solid var(--line);padding:10px 12px;color:var(--ink);cursor:pointer;min-height:44px}
+.day b{display:block;font-size:15px}.day span{color:var(--mute);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.day[aria-current=true]{background:var(--panel);box-shadow:inset 3px 0 0 var(--pru)}
+.viewer{border:1px solid var(--line);border-radius:6px;background:#fff;padding:14px}
+.viewer iframe{width:100%;border:0;min-height:520px;display:block}
+.steps{counter-reset:s;list-style:none;padding:0;margin:10px 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.steps li{border-top:2px solid var(--ink);padding-top:8px;font-size:15px}.steps li::before{counter-increment:s;content:counter(s);display:block;font-weight:600;color:var(--pru);font-size:20px}
+.chip{font:inherit;font-size:14px;min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--ink);cursor:pointer}
+@media(max-width:900px){.arch{grid-template-columns:minmax(0,1fr)}.days{max-height:300px}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head><body>
+<div class="top"><a href="../">← All projects</a><span class="sub">Stock news agent · running since 3 Oct 2026</span></div>
+<header class="band"><div class="wrap">
+<p class="sub">Automation · scheduled Claude agent · emails me every evening at 17:52 London time</p>
+<h1>An agent that reads the news on my 21 stocks every night, so I only read what matters</h1>
+<div class="kpis">
+<div class="kpi hi"><b id="k-n">55</b><span>Nightly digests sent so far</span></div>
+<div class="kpi"><b>21</b><span>Stocks on my watchlist</span></div>
+<div class="kpi"><b id="k-q">6</b><span>Quiet nights: the agent says so instead of padding</span></div>
+<div class="kpi"><b>$0</b><span>Runs on my Claude Pro plan, no API key</span></div>
+</div>
+<div class="roles">
+<div><h3>My work</h3><ul><li>Chose the watchlist and what counts as news: earnings and guidance, analyst rating changes, deals, contracts, regulation</li><li>Wrote the rules for what to drop: repeats, "stocks to buy" lists, price predictions, promotional pieces</li><li>Read the first weeks of output and redesigned it: ticker-only searches often came back empty, so I added macro, industry, peer and regulation news with how each one affects my stocks</li></ul></div>
+<div><h3>How I used Claude</h3><ul><li><b>Automate:</b> a scheduled Claude routine searches the web, checks sources and writes the email, every evening</li><li><b>Build:</b> Claude drafted the instructions with me and built this archive page</li><li>It summarises; it never recommends trades. I check the source before I act</li></ul></div>
+</div>
+</div></header>
+<main class="band" style="padding-top:0"><div class="wrap">
+<h2>How a night works</h2>
+<ol class="steps">
+<li>At 17:52 the routine starts and loads my watchlist and a map of what moves each stock (rates, oil, peers, regulators, countries)</li>
+<li>It searches the last 24 hours of news for each company and for those drivers</li>
+<li>It drops repeats and promotional pieces, and opens the source page to take every number from it</li>
+<li>It emails me: the top stories, news by stock, context that affects my stocks, and the coming calendar</li>
+</ol>
+
+<h2 style="margin-top:40px">Which stocks made the news</h2>
+<p class="tag">Nights on which each stock had relevant news, out of <span id="k-n2">55</span>. Click a bar to list those nights below.</p>
+<div class="fig" id="f-tk"></div>
+
+<h2 style="margin-top:32px">The archive</h2>
+<p class="tag">The emails are in Spanish, as I receive them. <span id="filt"></span></p>
+<div class="arch">
+<div class="days" id="days" role="list"></div>
+<div class="viewer"><p class="tag" id="vt"></p><iframe id="vf" title="Digest"></iframe></div>
+</div>
+</div></main>
+<footer class="band"><div class="wrap">Daniela Pomasunco · Digests are informational summaries, not investment advice.</div></footer>
+<script src="../assets/site.js"></script>
+<script>
+const S=SITE,c=S.c,base=S.base,ax=S.ax,cfg=S.cfg;let D=[],cur=null,flt=null;
+const MES={'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May','06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+const nice=d=>{const [y,m,dd]=d.split('-');const wd=new Date(d+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'short',timeZone:'UTC'});return wd+' '+(+dd)+' '+MES[m]+' '+y};
+function chart(){const cnt={};D.forEach(x=>x.t.forEach(t=>cnt[t]=(cnt[t]||0)+1));const k=Object.keys(cnt).sort((a,b)=>cnt[a]-cnt[b]||b.localeCompare(a));
+ Plotly.react('f-tk',[{type:'bar',orientation:'h',y:k,x:k.map(t=>cnt[t]),marker:{color:k.map(t=>t===flt?c('pru'):c('grey'))},text:k.map(t=>cnt[t]),textposition:'outside',cliponaxis:false,hovertemplate:'%{y}: news on %{x} nights<extra></extra>'}],base({height:Math.max(320,k.length*22+50),margin:{l:56,r:40,t:6,b:36},xaxis:ax({title:{text:'Nights with news'},range:[0,Math.max(...k.map(t=>cnt[t]))*1.12]}),yaxis:ax({type:'category',tickfont:{size:12}})}),cfg).then(g=>{g.removeAllListeners&&g.removeAllListeners('plotly_click');g.on('plotly_click',e=>{const t=e.points[0].y;flt=flt===t?null:t;list();chart()})})}
+function list(){const el=document.getElementById('days');const rows=D.slice().reverse().filter(x=>!flt||x.t.includes(flt));
+ document.getElementById('filt').innerHTML=flt?'Showing '+rows.length+' nights with '+S.esc(flt)+' news. <button class="chip" id="clr">Show all</button>':'';
+ if(flt)document.getElementById('clr').onclick=()=>{flt=null;list();chart()};
+ el.innerHTML=rows.map(x=>`<button class="day" role="listitem" data-d="${x.d}" aria-current="${x.d===cur}"><b>${nice(x.d)}</b><span>${x.t.length?S.esc(x.t.join(' · ')):'Quiet night'}</span></button>`).join('');
+ el.querySelectorAll('.day').forEach(b=>b.onclick=()=>open(b.dataset.d,true));
+ if(!rows.some(x=>x.d===cur)&&rows.length)open((rows.find(x=>x.t.length>1)||rows[0]).d,false)}
+function open(d,scroll){cur=d;document.querySelectorAll('.day').forEach(b=>b.setAttribute('aria-current',b.dataset.d===d));
+ document.getElementById('vt').textContent='Digest for '+nice(d);const f=document.getElementById('vf');f.onload=()=>{try{f.style.height=(f.contentDocument.documentElement.scrollHeight+20)+'px'}catch(e){}};f.src='digests/'+d+'.html';
+ if(scroll&&innerWidth<900)f.parentElement.scrollIntoView({behavior:'smooth'})}
+fetch('index.json').then(r=>r.json()).then(j=>{D=j;document.getElementById('k-n').textContent=D.length;document.getElementById('k-n2').textContent=D.length;document.getElementById('k-q').textContent=D.filter(x=>!x.t.length).length;chart();list()});
+let rz;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(chart,200)});
+</script>
+</body></html>

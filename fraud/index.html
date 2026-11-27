@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Card fraud detection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head><body>
+<div class="top"><a href="../">← All projects</a><span class="sub">Card fraud detection · LBS 2026</span></div>
+<header class="band"><div class="wrap">
+<p class="sub">London Business School · Data Science for Business · team of five · 671,028 card transactions, 2019–2020</p>
+<h1>Fraud is 0.6% of transactions but 4–5% of the money, and night-time and amount give it away</h1>
+<div class="kpis">
+<div class="kpi"><b>0.59%</b><span>Fraud rate (3,936 of 671,028)</span></div>
+<div class="kpi"><b>4.2–4.8%</b><span>Share of transaction value that is fraud</span></div>
+<div class="kpi"><b>$527</b><span>Average fraud vs $68 legitimate</span></div>
+<div class="kpi hi"><b>0.92</b><span>ROC-AUC on 134,206 unseen transactions</span></div>
+</div>
+<div class="roles">
+<div><h3>My part</h3><ul><li>Exploratory analysis and descriptive statistics (fraud by year, amount, category, time, age, job)</li><li>Machine-learning section: feature engineering, model comparison with cross-validation, hyperparameter tuning</li></ul><p class="note" style="margin:8px 0 0">The final test-set evaluation and SHAP interpretation were done by a teammate.</p></div>
+<div><h3>How I used Claude</h3><ul><li>Build: turned our notebook into this dashboard, after I approved its plan</li><li>Every number here comes from the notebook's own outputs</li><li>Claude added the business-impact calculator from the test-set results</li></ul></div>
+</div>
+</div></header>
+<main class="band" style="padding-top:0"><div class="wrap">
+<nav class="tabs" role="tablist">
+<button class="pill" role="tab" id="t-overview">Overview</button><button class="pill" role="tab" id="t-patterns">Patterns</button><button class="pill" role="tab" id="t-models">Models</button><button class="pill" role="tab" id="t-impact">Business impact</button>
+</nav>
+
+<section class="tab" id="p-overview">
+<h2>Fraud is rare, but expensive</h2>
+<div class="pills" id="fy"><button class="pill" data-v="count" aria-pressed="true">Number of frauds</button><button class="pill" data-v="rate" aria-pressed="false">Fraud rate</button><button class="pill" data-v="money" aria-pressed="false">Share of money</button></div>
+<div class="grid2">
+<div><h3 id="yt">Frauds per year</h3><p class="tag">2020 covers part of the year only</p><div class="fig sm" id="f-year"></div></div>
+<div><h3>Transaction amounts</h3><p class="tag">Box: 25th–75th percentile and median. Whiskers reach 1.5× the box width, or the minimum and maximum. Legitimate amounts run up to $27,120 (off scale).</p><div class="fig sm" id="f-amt"></div></div>
+</div>
+<div class="scroll" style="margin-top:16px"><table><thead><tr><th></th><th class="n">Count</th><th class="n">Mean</th><th class="n">Median</th><th class="n">25th pct</th><th class="n">75th pct</th><th class="n">Max</th></tr></thead><tbody>
+<tr><td>Fraudulent</td><td class="n">3,936</td><td class="n">$527</td><td class="n">$369</td><td class="n">$240</td><td class="n">$901</td><td class="n">$1,334</td></tr>
+<tr><td>Legitimate</td><td class="n">667,092</td><td class="n">$68</td><td class="n">$47</td><td class="n">$10</td><td class="n">$82</td><td class="n">$27,120</td></tr>
+</tbody></table></div>
+<button class="next" data-go="patterns">Next: Patterns →</button>
+</section>
+
+<section class="tab" id="p-patterns">
+<h2>Night-time and large amounts are the strongest signals</h2>
+<div class="pills" id="fi"><button class="pill" data-v="perm" aria-pressed="true">Permutation importance</button><button class="pill" data-v="shap" aria-pressed="false">Mean |SHAP|</button></div>
+<p class="tag" id="fit"></p>
+<div class="fig" id="f-imp"></div>
+<div class="grid2" style="margin-top:18px">
+<div><h3>Fraud rate by age group</h3><p class="tag">Over-60s are targeted most</p><div class="fig sm" id="f-age"></div></div>
+<div><h3>Share of frauds by category</h3><p class="tag">Notebook figure. Grocery at the till and online shopping lead.</p><figure><img src="img/category.png" alt="Bar chart: share of fraudulent transactions by merchant category. grocery_pos and shopping_net about 23% each, misc_net about 12%, shopping_pos about 11%, gas_transport about 8%, the rest below 4%." loading="lazy" width="1184" height="584"></figure></div>
+</div>
+<h3 style="margin-top:22px">When fraud happens</h3><p class="tag">Notebook figure. Fraud rate jumps between 22:00 and 03:00, and is higher in January–February and Wednesday–Friday.</p>
+<figure><img src="img/time.png" alt="Three charts of fraud rate by month, weekday and hour. Rate is highest in January and February, on Wednesday to Friday, and sharply higher from 22:00 to 03:00." loading="lazy" width="1184" height="584"></figure>
+<button class="next" data-go="models">Next: Models →</button>
+</section>
+
+<section class="tab" id="p-models">
+<h2>Gradient boosting ranks fraud best</h2>
+<div class="pills" id="fm"><button class="pill" data-v="auc" aria-pressed="true">ROC-AUC</button><button class="pill" data-v="f1" aria-pressed="false">F1 (fraud)</button><button class="pill" data-v="time" aria-pressed="false">Fit time</button></div>
+<p class="tag" id="fmt"></p>
+<div class="fig sm" id="f-cv"></div>
+<h3 style="margin-top:22px">Tuned model on the held-out test set</h3>
+<p class="tag">Histogram gradient boosting, tuned with RandomizedSearchCV (30 iterations), decision threshold 0.96</p>
+<div class="kpis"><div class="kpi hi"><b>0.916</b><span>ROC-AUC</span></div><div class="kpi"><b>0.275</b><span>PR-AUC</span></div><div class="kpi"><b>55%</b><span>Precision: flagged that were fraud</span></div><div class="kpi"><b>36%</b><span>Recall: frauds caught</span></div></div>
+<div class="grid2" style="align-items:start">
+<div><h3>Confusion matrix</h3><p class="tag">134,206 test transactions; counts derived from the reported precision, recall and support</p>
+<table><thead><tr><th></th><th class="n">Flagged</th><th class="n">Not flagged</th></tr></thead><tbody><tr><td>Fraud (787)</td><td class="n" style="color:var(--pru);font-weight:600">282</td><td class="n" style="color:var(--car)">505</td></tr><tr><td>Legitimate (133,419)</td><td class="n" style="color:var(--car)">229</td><td class="n">133,190</td></tr></tbody></table></div>
+<div class="call" style="margin-top:28px">Cross-validation AUC was 0.997 against 0.916 on the test set. The gap is worth flagging: the tuned model ranks unseen fraud less well than the folds suggested, so the threshold should be re-checked on fresh data before use.</div>
+</div>
+<button class="next" data-go="impact">Next: Business impact →</button>
+</section>
+
+<section class="tab" id="p-impact">
+<h2>What the model would save a card issuer</h2>
+<p class="tag">On the 134,206 test transactions, using the test-set results above. Change the cost assumptions.</p>
+<div class="split" style="margin-top:8px">
+<div>
+<label for="rc">Cost to review each flagged transaction: <b id="rcv"></b></label><input type="range" id="rc" min="0" max="50" step="1" value="10">
+<label for="rr">Share of a caught fraud's loss avoided: <b id="rrv"></b></label><input type="range" id="rr" min="50" max="100" step="5" value="100">
+<label for="fa">Cost of annoying a genuine customer (lost goodwill): <b id="fav"></b></label><input type="range" id="fa" min="0" max="100" step="5" value="20">
+<p class="note">Assumes caught frauds average $527, the overall fraud average.</p>
+</div>
+<div><div class="ev" id="net"></div><div class="sub" id="netr"></div><div class="fig sm" id="f-wf"></div></div>
+</div>
+<div class="call" id="imc"></div>
+</section>
+</div></main>
+<footer class="band"><div class="wrap">Data: simulated credit-card transactions used in "Credit Card Fraud Detection Using Weighted Support Vector Machine" (SCIRP, 2020). Team project for LBS E628. Interactive version built with Claude from our notebook. <a href="https://github.com/DaniPomasunco/credit-card-fraud-detection">Code</a></div></footer>
+<script src="../assets/site.js"></script>
+<script>
+{
+const S=SITE,c=S.c,base=S.base,ax=S.ax,cfg=S.cfg;
+const st={y:'count',i:'perm',m:'auc'};
+const Y={y:['2019','2020'],count:[2721,1215],rate:[0.5685,0.6316],money:[4.2348,4.8016]};
+const IMP={perm:[['Night-time (22:00–06:00)',0.1238],['Amount (log)',0.1236],['Hour',0.0165],['Category: home',0.0096],['Category: gas & transport',0.0067],['Category: grocery (till)',0.0034],['Category: entertainment',0.0034],['Weekend',0.0027],['Month',0.0023],['Category: travel',0.0021]],
+ shap:[['Night-time (22:00–06:00)',1.1271],['Amount (log)',0.9355],['Hour',0.4624],['Category: home',0.2531],['Category: gas & transport',0.2243],['Weekend',0.1514],['Day of week',0.1467],['Month',0.1391],['Category: grocery (till)',0.1322],['Category: food & dining',0.1134]]};
+const CV={m:['Logistic regression','Random forest','Gradient boosting'],auc:[0.8906,0.9881,0.9969],aucsd:[0.0075,0.0032,0.0015],f1:[0.0404,0.7829,0.4512],f1sd:[0.0053,0.0101,0.0176],time:[542.3,228.3,22.9]};
+const draw={
+ overview(){const k=st.y,lab={count:'Frauds per year',rate:'Fraud rate',money:'Fraud as % of transaction value'};document.getElementById('yt').textContent=lab[k];
+  const v=Y[k],txt=v.map(x=>k==='count'?S.fmt(x):x.toFixed(2)+'%');
+  Plotly.react('f-year',[{type:'bar',x:Y.y,y:v,marker:{color:c('car')},text:txt,textposition:'outside',cliponaxis:false,hovertemplate:'%{x}: %{text}<extra></extra>'}],base({margin:{l:52,r:10,t:24,b:36},xaxis:ax({type:'category'}),yaxis:ax({rangemode:'tozero',range:[0,Math.max(...v)*1.25],ticksuffix:k==='count'?'':'%'})}),cfg);
+  const bx=(n,q,col)=>({type:'box',orientation:'h',name:n,y:[n],lowerfence:[q[0]],q1:[q[1]],median:[q[2]],q3:[q[3]],upperfence:[q[4]],mean:[q[5]],marker:{color:col},line:{color:col},fillcolor:col+'33',hoverinfo:'x+name'});
+  Plotly.react('f-amt',[bx('Legitimate',[1,9.6,47.17,82.41,191.6,67.62],c('grey')),bx('Fraudulent',[1.06,240.49,368.83,900.95,1334.07,527.21],c('car'))],base({margin:{l:96,r:10,t:10,b:44},xaxis:ax({tickprefix:'$',range:[0,1400],title:{text:'Transaction amount'}}),yaxis:ax({})}),cfg);
+ },
+ patterns(){const d=IMP[st.i].slice().reverse();document.getElementById('fit').textContent=st.i==='perm'?'Drop in test ROC-AUC when each feature is shuffled (top 10 of 78)':'Average absolute SHAP value on 2,000 test transactions (top 10)';
+  Plotly.react('f-imp',[{type:'bar',orientation:'h',y:d.map(x=>x[0]),x:d.map(x=>x[1]),marker:{color:d.map((x,i)=>i>=d.length-2?c('pru'):c('grey'))},text:d.map(x=>x[1].toFixed(st.i==='perm'?4:3)),textposition:'outside',cliponaxis:false,hovertemplate:'%{y}: %{x}<extra></extra>'}],base({margin:{l:S.narrow('f-imp')?150:200,r:56,t:10,b:36},xaxis:ax({}),yaxis:ax({type:'category'})}),cfg);
+  const ag=['Under 20','20–40','41–60','Over 60'],r=[0.0069,0.0050,0.0057,0.0077];
+  Plotly.react('f-age',[{type:'bar',x:ag,y:r.map(v=>v*100),marker:{color:r.map(v=>v===0.0077?c('car'):c('grey'))},text:r.map(v=>(v*100).toFixed(2)+'%'),textposition:'outside',cliponaxis:false,hovertemplate:'%{x}: %{text}<extra></extra>'}],base({margin:{l:48,r:10,t:24,b:36},xaxis:ax({type:'category'}),yaxis:ax({ticksuffix:'%',range:[0,0.95]})}),cfg);
+ },
+ models(){const k=st.m,v=CV[k],sd=CV[k+'sd'];document.getElementById('fmt').textContent={auc:'Mean of 5 folds, ±1 standard deviation. Higher is better.',f1:'F1 on the fraud class at the default threshold, mean of 5 folds. Random forest wins on F1 before tuning.',time:'Seconds to fit all 5 folds. Lower is better.'}[k];
+  Plotly.react('f-cv',[{type:'bar',orientation:'h',y:sd?CV.m.map((m,i)=>m+'<br><b>'+v[i].toFixed(3)+'</b> ±'+sd[i].toFixed(3)):CV.m,x:v,error_x:sd?{type:'data',array:sd,color:c('ink'),thickness:1.5}:undefined,marker:{color:CV.m.map((m,i)=>i===2?c('pru'):c('grey'))},text:sd?undefined:v.map(x=>k==='time'?x.toFixed(0)+'s':x.toFixed(3)),textposition:'outside',cliponaxis:false,hovertemplate:'%{x:.4f}<extra></extra>'}],base({margin:{l:140,r:56,t:10,b:36},xaxis:ax({range:k==='auc'?[0.85,1.0]:[0,Math.max(...v)*1.15],title:{text:{auc:'ROC-AUC (axis starts at 0.85)',f1:'F1, fraud class',time:'Seconds'}[k]}}),yaxis:ax({type:'category'})}),cfg);
+ },
+ impact(){const rc=+document.getElementById('rc').value,rr=+document.getElementById('rr').value/100,fa=+document.getElementById('fa').value;
+  document.getElementById('rcv').textContent='$'+rc;document.getElementById('rrv').textContent=Math.round(rr*100)+'%';document.getElementById('fav').textContent='$'+fa;
+  const TP=282,FP=229,FN=505,AVG=527.21;const saved=TP*AVG*rr,review=(TP+FP)*rc,friction=FP*fa,net=saved-review-friction,missed=FN*AVG;
+  const e=document.getElementById('net');e.textContent=(net<0?'−$':'$')+S.fmt(Math.abs(net));e.classList.toggle('down',net<0);
+  document.getElementById('netr').textContent='Net benefit on the test set, about $'+S.fmt(net/134206*1e6/1000,0)+'k per million transactions';
+  Plotly.react('f-wf',[{type:'waterfall',orientation:'v',x:['Fraud losses avoided','Review cost','Customer friction','Net benefit'],measure:['relative','relative','relative','total'],y:[saved,-review,-friction,0],text:[saved,-review,-friction,net].map(v=>(v<0?'−$':'$')+S.fmt(Math.abs(v)/1000,1)+'k'),textposition:'outside',cliponaxis:false,increasing:{marker:{color:c('pru')}},decreasing:{marker:{color:c('car')}},totals:{marker:{color:c('ink')}},connector:{line:{color:c('line')}},hovertemplate:'%{x}: %{text}<extra></extra>'}],base({margin:{l:56,r:10,t:24,b:44},yaxis:ax({tickprefix:'$',tickformat:'.2s',range:[Math.min(0,net)*1.2,saved*1.2]}),xaxis:ax({tickfont:{size:S.narrow('f-wf')?10:12}})}),cfg);
+  document.getElementById('imc').textContent='The model still misses 505 of 787 frauds, worth about $'+S.fmt(missed/1000,0)+'k. Lowering the 0.96 threshold would catch more fraud at the cost of more false alarms; recall, not ranking, is the next thing to improve.';
+ }
+};
+S.tabs(['overview','patterns','models','impact'],draw);
+S.pills('fy',v=>{st.y=v;draw.overview()});S.pills('fi',v=>{st.i=v;draw.patterns()});S.pills('fm',v=>{st.m=v;draw.models()});
+['rc','rr','fa'].forEach(i=>document.getElementById(i).addEventListener('input',draw.impact));
+}
+</script>
+</body></html>
