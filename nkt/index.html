@@ -98,7 +98,8 @@ footer{font-size:13px;color:var(--mute);border-top:1px solid var(--line)}
 <section class="tab" id="p-valuation">
 <h2>My target sits above the broker average and the multiple-based checks</h2><p class="tag">Model and valuation: Daniela · DCF by business line (Transmission, Distribution, Grid Solutions &amp; Accessories) · WACC 8.3% incl. a 0.5pp project-concentration premium</p>
 <div class="fig tall" id="f-football"></div>
-<p style="font-size:15px;max-width:70ch">The exit-multiple and P/E checks come out lower because they stop before the cash arrives after 2028. Terminal value is 79% of EV, or 9.8x 2031E EBITDA. The gap to the broker average is the discount rate, not the forecasts.</p>
+<p class="tag" style="margin-top:4px">Same ranges as Exhibit 9 of my pitch. Broker targets and the 52-week range are from Bloomberg; everything else is from my model.</p>
+<p style="font-size:15px;max-width:70ch">The exit-multiple and P/E checks come out lower because they stop before the cash arrives after 2028. Terminal value is 79% of EV, or 9.8x 2031E EBITDA. The gap to the broker average is the discount rate, not the forecasts. A harsher stress test (DKK 419) sits outside the chart because I treat it as a tail outcome, not a weighted scenario.</p>
 <h2 style="margin-top:28px">What moves the value</h2><p class="tag">Value per share at stake, DKK, from my catalyst analysis</p>
 <div class="fig" id="f-stake"></div>
 <h2 style="margin-top:28px">Build your own value</h2><p class="tag">Move my four key inputs. Values come from my DCF sensitivity re-runs; when you move inputs from both pairs at once the result is an approximation.</p>
@@ -170,7 +171,7 @@ footer{font-size:13px;color:var(--mute);border-top:1px solid var(--line)}
 
 <script>
 {
-const PAL={light:{'--ink':'#10131a','--mute':'#566070','--line':'#dde2e8','--pru':'#0b4f8a','--car':'#c1121f'},dark:{'--ink':'#e7e9ee','--mute':'#9aa3b2','--line':'#2a303a','--pru':'#6fa8dc','--car':'#ef6b73'}};
+const PAL={light:{'--ink':'#10131a','--mute':'#566070','--line':'#dde2e8','--pru':'#0b4f8a','--car':'#c1121f','--grn':'#2e7d4f','--lite':'#9db3d6'},dark:{'--ink':'#e7e9ee','--mute':'#9aa3b2','--line':'#2a303a','--pru':'#6fa8dc','--car':'#ef6b73','--grn':'#6cc28f','--lite':'#4a6a96'}};
 const isDark=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
 const css=n=>PAL[isDark()?'dark':'light'][n];
 const tabs=['thesis','valuation','scenarios','tracking'];
@@ -186,12 +187,23 @@ const draw={
  },
  valuation(){
   const nar=document.getElementById('f-football').clientWidth<560;
-  const rows=[['Broker targets (15)',495,1277,987],['Bear to bull scenarios',585,1577,null],['Harsher stress test',419,419,null],['16x 2028E EPS',897,897,null],['9x exit EV/EBITDA',968,968,null],['My target (weighted)',1094,1094,null]];
-  const col=r=>r[0].startsWith('My')?css('--pru'):r[0].startsWith('Bear')?css('--pru'):css('--mute');
-  const tr=[{type:'bar',orientation:'h',y:rows.map(r=>r[0]),base:rows.map(r=>r[1]),x:rows.map(r=>Math.max(r[2]-r[1],12)),marker:{color:rows.map(col),opacity:rows.map(r=>r[0].startsWith('Bear')||r[0].startsWith('Broker')?.4:1)},customdata:rows.map(r=>r[1]===r[2]?'DKK '+r[1].toLocaleString('en'):'DKK '+r[1].toLocaleString('en')+' – '+r[2].toLocaleString('en')+(r[3]?' (average '+r[3]+')':'')),hovertemplate:'%{y}: %{customdata}<extra></extra>'},
-   {type:'scatter',mode:'markers',y:[nar?'Brokers':'Broker targets (15)'],x:[987],marker:{symbol:'line-ns-open',size:22,color:css('--ink'),line:{width:3,color:css('--ink')}},hovertemplate:'Broker average: DKK 987<extra></extra>'}];
-  if(nar)tr.forEach(t=>t.y=t.y.map(s=>({'Broker targets (15)':'Brokers','Bear to bull scenarios':'Bear–bull','Harsher stress test':'Stress test','16x 2028E EPS':'16x P/E','9x exit EV/EBITDA':'9x exit','My target (weighted)':'My target'})[s]||s));
-  Plotly.react('f-football',tr,Object.assign(base(),{margin:{l:nar?80:170,r:16,t:28,b:44},xaxis:ax({range:[350,1700],title:{text:'DKK per share',font:{size:12}}}),yaxis:ax({autorange:'reversed'}),shapes:[{type:'line',x0:868,x1:868,yref:'paper',y0:0,y1:1,line:{color:css('--car'),width:2}}],annotations:[{x:868,yref:'paper',y:1,yanchor:'bottom',text:'Price 868',showarrow:false,yshift:4,font:{size:12,color:css('--car')}}]}),cfg);
+  // Same rows, ranges and order as Exhibit 9 of my pitch.
+  const R=[{n:'DCF: bear to bull (base 1,106)',s:'DCF bear–bull',lo:585,hi:1577,m:1106,c:'--pru',h:'Bear DKK 585 · base 1,106 · bull 1,577'},
+   {n:'Analyst targets, 15 brokers (avg 987)',s:'Brokers (15)',lo:495,hi:1277,m:987,c:'--lite',h:'Broker targets DKK 495–1,277, average 987'},
+   {n:'P/E 14–18x 2028E EPS (16x = 897)',s:'P/E 14–18x',lo:785,hi:1010,m:897,c:'--lite',h:'14x DKK 785 · 16x 897 · 18x 1,010'},
+   {n:'Exit multiple 9x 2031E EBITDA',s:'Exit 9x',lo:968,hi:968,m:null,c:'--pru',h:'9x 2031E EBITDA: DKK 968'},
+   {n:'52-week trading range',s:'52-week',lo:706,hi:1135,m:null,c:'--lite',h:'52-week range DKK 706–1,135'}];
+  const y=R.map(r=>nar?r.s:r.n);
+  const bars=R.filter(r=>r.hi>r.lo);
+  const tr=[{type:'bar',orientation:'h',y:bars.map(r=>nar?r.s:r.n),base:bars.map(r=>r.lo),x:bars.map(r=>r.hi-r.lo),width:.55,marker:{color:bars.map(r=>css(r.c))},customdata:bars.map(r=>r.h),hovertemplate:'%{customdata}<extra></extra>'},
+   {type:'scatter',mode:'markers',y:R.filter(r=>r.m).map(r=>nar?r.s:r.n),x:R.filter(r=>r.m).map(r=>r.m),marker:{symbol:'line-ns-open',size:24,color:css('--ink'),line:{width:4,color:css('--ink')}},customdata:R.filter(r=>r.m).map(r=>r.h),hovertemplate:'%{customdata}<extra></extra>'},
+   {type:'scatter',mode:'markers',y:[y[3]],x:[968],marker:{symbol:'diamond',size:16,color:css('--pru')},hovertemplate:R[3].h+'<extra></extra>'}];
+  const fs=nar?11:12,an=[],bg=isDark()?'#0f1217':'#ffffff';
+  R.forEach((r,i)=>{if(r.hi>r.lo){an.push({x:r.lo,y:y[i],text:r.lo.toLocaleString('en'),xanchor:'right',xshift:-5,showarrow:false,bgcolor:bg,borderpad:1,font:{size:fs,color:css('--mute')}});an.push({x:r.hi,y:y[i],text:r.hi.toLocaleString('en'),xanchor:'left',xshift:5,showarrow:false,bgcolor:bg,borderpad:1,font:{size:fs,color:css('--mute')}})}else an.push({x:r.hi,y:y[i],text:r.hi.toLocaleString('en'),xanchor:'left',xshift:11,showarrow:false,bgcolor:bg,borderpad:1,font:{size:fs,color:css('--mute')}})});
+  an.push({x:868,yref:'paper',y:1,yanchor:'bottom',xanchor:'right',text:'Price 868',showarrow:false,yshift:4,font:{size:12,color:css('--car')}});
+  an.push({x:1094,yref:'paper',y:1,yanchor:'bottom',xanchor:'left',text:'Target 1,094',showarrow:false,yshift:4,font:{size:12,color:css('--grn')}});
+  Plotly.react('f-football',tr,Object.assign(base(),{margin:{l:nar?100:250,r:16,t:30,b:44},xaxis:ax({range:nar?[250,1780]:[400,1720],tickvals:nar?[400,800,1200,1600]:undefined,title:{text:'DKK per share',font:{size:12}}}),yaxis:ax({type:'category',autorange:'reversed',categoryorder:'array',categoryarray:y}),annotations:an,
+   shapes:[{type:'line',x0:868,x1:868,yref:'paper',y0:0,y1:1,line:{color:css('--car'),width:2,dash:'dash'}},{type:'line',x0:1094,x1:1094,yref:'paper',y0:0,y1:1,line:{color:css('--grn'),width:2,dash:'dash'}}]}),cfg);
   const st=[['Terminal growth<br>±0.5pp',-75,75,'about ±DKK 70-80'],['Capacity ramp<br>10% slower',-90,0,'about −DKK 90'],['Antitrust fine<br>(bear case)',-10,0,'about −DKK 10']];
   Plotly.react('f-stake',[{type:'bar',orientation:'h',y:st.map(r=>r[0]),x:st.map(r=>r[1]),marker:{color:css('--car')},customdata:st.map(r=>r[3]),hovertemplate:'%{y}: %{customdata}<extra></extra>'},{type:'bar',orientation:'h',y:st.map(r=>r[0]),x:st.map(r=>r[2]),marker:{color:css('--pru')},customdata:st.map(r=>r[3]),hovertemplate:'%{y}: %{customdata}<extra></extra>'}],Object.assign(base(),{barmode:'overlay',margin:{l:110,r:16,t:10,b:40},xaxis:ax({range:[-110,110],title:{text:'DKK per share',font:{size:12}},zeroline:true,zerolinecolor:css('--ink')}),yaxis:ax({autorange:'reversed'})}),cfg);
 
